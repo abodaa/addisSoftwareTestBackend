@@ -1,7 +1,6 @@
 const express = require("express");
 const {
   getAllSongs,
-  getSingleSong,
   createSong,
   updateSong,
   deleteSong,
@@ -14,7 +13,6 @@ const router = express.Router();
 router.post("/", createSong);
 router.get("/", getAllSongs);
 router.get("/stat", getSongsSatatstics);
-router.get("/:id", getSingleSong);
 router.patch("/:id", updateSong);
 router.delete("/:id", deleteSong);
 

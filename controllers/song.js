@@ -25,6 +25,7 @@ const getAllSongs = async (req, res) => {
         totalSongsCount: songs.length,
       });
     } catch (error) {
+      console.log(error);
       return res.send(error);
     }
   }
@@ -37,15 +38,34 @@ const getAllSongs = async (req, res) => {
       .status(StatusCodes.OK)
       .json({ success: true, data: songs, totalSongsCount: songs.length });
   } catch (error) {
+    console.log(error);
     return res.status(StatusCodes.BAD_REQUEST).send(error);
   }
 };
 
-//  Get a single Song
-const getSingleSong = async (req, res) => {};
 
 //  Update Song
-const updateSong = async (req, res) => {};
+const updateSong = async (req, res) => {
+  const { id: songId } = req.params; // Destructure watchlist ID from params
+  try {
+    const song = await Song.findOneAndUpdate({ _id: songId }, req.body, {
+      new: true,
+      runValidators: true,
+    });
+
+    // Check if song exists
+    if (!song) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        msg: `No song found with ID: ${songId}`,
+      });
+    }
+    return res.status(StatusCodes.OK).json({ success: true, data: song });
+  } catch (error) {
+    console.log(error);
+    res.status(StatusCodes.BAD_REQUEST).send(error);
+  }
+};
 
 //  Delete Song
 const deleteSong = async (req, res) => {};
@@ -82,7 +102,6 @@ const getSongsSatatstics = async (req, res) => {
 
 module.exports = {
   getAllSongs,
-  getSingleSong,
   createSong,
   updateSong,
   deleteSong,
