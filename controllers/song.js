@@ -31,9 +31,9 @@ const getAllSongs = async (req, res) => {
       songDatasObj.genre = { $regex: genre, $options: "i" };
     }
 
-    let result = Song.find(songDatasObj); // filter depending on the songDataObj object
+    let songsResult = Song.find(songDatasObj); // filter depending on the songDataObj object
 
-    const songs = await result;
+    const songs = await songsResult;
 
     return res.status(StatusCodes.OK).json({ success: true, data: songs });
   } catch (error) {
