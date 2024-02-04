@@ -1,4 +1,5 @@
 const express = require("express");
+const router = express.Router();
 const {
   getAllSongs,
   createSong,
@@ -7,7 +8,6 @@ const {
   getSongsSatatstics,
 } = require("../controllers/song"); // Importing controller functions
 
-const router = express.Router();
 
 // Music Route
 router.post("/", createSong);
