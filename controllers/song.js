@@ -22,7 +22,6 @@ const getAllSongs = async (req, res) => {
       return res.status(StatusCodes.OK).json({
         success: true,
         data: songs,
-        totalSongsCount: songs.length,
       });
     } catch (error) {
       console.log(error);
@@ -42,7 +41,6 @@ const getAllSongs = async (req, res) => {
     return res.status(StatusCodes.BAD_REQUEST).send(error);
   }
 };
-
 
 //  Update Song
 const updateSong = async (req, res) => {
@@ -92,17 +90,44 @@ const deleteSong = async (req, res) => {
 // Get all songs statstics
 const getSongsSatatstics = async (req, res) => {
   try {
-    const totalSongsCount = await Song.find();
+    const totalSongsCount = await Song.countDocuments();
+    const totalArtistsCount = await Song.distinct("artist").countDocuments();
+    const totalAlbumsCount = await Song.distinct("album").countDocuments();
+    const totalGenresCount = await Song.distinct("genre").countDocuments();
 
-    const totalArtistsCount = (await Song.find()).filter(
-      (filter) => filter.artist
-    );
-    const totalAlbumsCount = (await Song.find()).filter(
-      (filter) => filter.album
-    );
-    const totalGenresCount = (await Song.find()).filter(
-      (filter) => filter.genre
-    );
+    const genreCounts = await Song.aggregate([
+      { $group: { _id: "$genre", count: { $sum: 1 } } },
+    ]);
+
+    const artistAlbumaAndSongsCounts = await Song.aggregate([
+      {
+        $group: {
+          _id: { artist: "$artist", album: "$album" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.artist",
+          albumCount: { $sum: 1 },
+          songCount: { $sum: "$count" },
+        },
+      },
+    ]);
+    const eachAlbumSongsCounts = await Song.aggregate([
+      {
+        $group: {
+          _id: { album: "$album", songs: "$title" },
+          count: { $sum: 1 },
+        },
+      },
+      {
+        $group: {
+          _id: "$_id.album",
+          songsInAlbumCount: { $sum: 1 },
+        },
+      },
+    ]);
 
     return res.status(StatusCodes.OK).json({
       success: true,
@@ -111,6 +136,9 @@ const getSongsSatatstics = async (req, res) => {
         totalArtistsCount,
         totalAlbumsCount,
         totalGenresCount,
+        genreCounts,
+        artistAlbumaAndSongsCounts,
+        eachAlbumSongsCounts,
       },
     });
   } catch (error) {
