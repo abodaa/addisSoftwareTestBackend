@@ -14,31 +14,31 @@ const createSong = async (req, res) => {
 
 // Get All Songs
 const getAllSongs = async (req, res) => {
-  const { songFilter } = req.query;
-
-  if (songFilter === "all" || !songFilter) {
-    try {
-      const songs = await Song.find();
-      return res.status(StatusCodes.OK).json({
-        success: true,
-        data: songs,
-      });
-    } catch (error) {
-      console.log(error);
-      return res.send(error);
-    }
-  }
-
   try {
-    const songs = await Song.find({
-      genre: songFilter,
-    }); // Filter with filter param
-    return res
-      .status(StatusCodes.OK)
-      .json({ success: true, data: songs, totalSongsCount: songs.length });
+    const { title, artist, album, genre } = req.query;
+    const songDatasObj = {};
+
+    if (title) {
+      songDatasObj.title = { $regex: title, $options: "i" };
+    }
+    if (artist) {
+      songDatasObj.artist = { $regex: artist, $options: "i" };
+    }
+    if (album) {
+      songDatasObj.album = { $regex: album, $options: "i" };
+    }
+    if (genre) {
+      songDatasObj.genre = { $regex: genre, $options: "i" };
+    }
+
+    let result = Song.find(songDatasObj); // filter depending on the songDataObj object
+
+    const songs = await result;
+
+    return res.status(StatusCodes.OK).json({ success: true, data: songs });
   } catch (error) {
     console.log(error);
-    return res.status(StatusCodes.BAD_REQUEST).send(error);
+    res.status(StatusCodes.BAD_REQUEST).send(error);
   }
 };
 
