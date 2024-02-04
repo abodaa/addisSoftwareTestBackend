@@ -46,7 +46,7 @@ const getAllSongs = async (req, res) => {
 
 //  Update Song
 const updateSong = async (req, res) => {
-  const { id: songId } = req.params; // Destructure watchlist ID from params
+  const { id: songId } = req.params;
   try {
     const song = await Song.findOneAndUpdate({ _id: songId }, req.body, {
       new: true,
@@ -68,7 +68,26 @@ const updateSong = async (req, res) => {
 };
 
 //  Delete Song
-const deleteSong = async (req, res) => {};
+const deleteSong = async (req, res) => {
+  const { id: songId } = req.params;
+  try {
+    const song = await Song.findOneAndDelete({
+      _id: songId,
+    });
+
+    // Check if song exists
+    if (!song) {
+      return res.status(StatusCodes.NOT_FOUND).json({
+        success: false,
+        msg: `No song found with ID: ${songId}`,
+      });
+    }
+    return res.status(StatusCodes.OK).send(`${songId} Deleted Successfully!`);
+  } catch (error) {
+    console.log(error);
+    res.status(StatusCodes.BAD_REQUEST).send(error);
+  }
+};
 
 // Get all songs statstics
 const getSongsSatatstics = async (req, res) => {
