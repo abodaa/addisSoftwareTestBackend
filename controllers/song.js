@@ -31,7 +31,7 @@ const getAllSongs = async (req, res) => {
       songDatasObj.genre = { $regex: genre, $options: "i" };
     }
 
-    let songsResult = Song.find(songDatasObj); // filter depending on the songDataObj object
+    let songsResult = Song.find(songDatasObj).sort({ createdAt: -1 }); // filter depending on the songDataObj object
 
     const songs = await songsResult;
 
